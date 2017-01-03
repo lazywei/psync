@@ -23,8 +23,20 @@ def load_config(root):
     return conf
 
 
-def rsync_cmd(conf):
-    cmd = "rsync -e ssh -ruaz {} {}:{}".format(
-        conf["local"], conf["ssh"]["server"], conf["remote"])
+def mkdir_cmds(conf):
+    return ["ssh", conf["ssh"]["server"],
+            "mkdir -p {}".format(conf["remote"])]
 
-    return cmd
+
+def rsync_cmds(conf):
+    cmds = ["rsync", "-e", "ssh", "-ruaz",
+            conf["local"], conf["ssh"]["server"] + ":" + conf["remote"]]
+
+    return cmds
+
+
+def cmds_seq(conf):
+    return [
+        mkdir_cmds(conf),
+        rsync_cmds(conf),
+    ]

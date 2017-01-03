@@ -8,10 +8,10 @@ test_psync
 Tests for `psync` module.
 """
 
-from click.testing import CliRunner
+# from click.testing import CliRunner
 
 from psync import psync
-from psync import cli
+# from psync import cli
 
 PROJ_ROOT = "/Users/lazywei/Code/psync/demo_project"
 
@@ -36,22 +36,45 @@ def test_load_config():
 
 def test_rsync_cmd():
     conf = psync.load_config(root=PROJ_ROOT)
-    cmd = psync.rsync_cmd(conf)
+    cmds = psync.rsync_cmds(conf)
 
     # rsync -e ssh\
     #       --exclude=GTAGS --exclude=GPATH --exclude=GRTAGS\
     #       -ruaz /Users/lazywei/CMU/Courses/10-605/hw6/6-handout/*\
     #             andrew_linux:~/courses/10-605/hw6/
-    assert cmd == "rsync -e ssh -ruaz {} {}:{}".format(conf["local"],
-                                                       conf["ssh"]["server"],
-                                                       conf["remote"])
+    assert isinstance(cmds, list)
+
+    assert " ".join(cmds) == "rsync -e ssh -ruaz {} {}:{}".format(
+        conf["local"], conf["ssh"]["server"], conf["remote"])
 
 
-def test_command_line_interface():
-    runner = CliRunner()
-    result = runner.invoke(cli.main)
-    assert result.exit_code == 0
-    assert 'psync.cli.main' in result.output
-    help_result = runner.invoke(cli.main, ['--help'])
-    assert help_result.exit_code == 0
-    assert '--help  Show this message and exit.' in help_result.output
+def test_mkdir_cmds():
+    conf = psync.load_config(root=PROJ_ROOT)
+    cmds = psync.mkdir_cmds(conf)
+
+    assert " ".join(cmds) == "ssh {} mkdir -p {}".format(
+        conf["ssh"]["server"], conf["remote"])
+
+
+def test_cmd_seq():
+    conf = psync.load_config(root=PROJ_ROOT)
+    cmds = psync.cmds_seq(conf)
+
+    assert isinstance(cmds, list)
+    assert len(cmds) == 2
+    assert isinstance(cmds[0], list)
+    assert isinstance(cmds[1], list)
+
+    assert cmds[0][0] == "ssh"
+    assert "mkdir" in cmds[0][-1]
+    assert cmds[1][0] == "rsync"
+
+
+# def test_command_line_interface():
+#     runner = CliRunner()
+#     result = runner.invoke(cli.main)
+#     assert result.exit_code == 0
+#     assert 'psync.cli.main' in result.output
+#     help_result = runner.invoke(cli.main, ['--help'])
+#     assert help_result.exit_code == 0
+#     assert '--help  Show this message and exit.' in help_result.output

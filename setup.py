@@ -8,16 +8,10 @@ with open('README.rst') as readme_file:
 
 requirements = [
     'Click>=6.0',
-    # TODO: put package requirements here
 ]
 
 test_requirements = [
     # TODO: put package test requirements here
-]
-
-requirements = [
-    'Click>=6.0',
-    # TODO: put package requirements here
 ]
 
 setup(
