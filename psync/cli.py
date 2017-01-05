@@ -18,6 +18,7 @@ def main(args=None):
         conf = psync.load_config(root=root)
 
         for cmd in psync.cmds_seq(conf):
+            click.echo("Running:\n  {}".format(" ".join(cmd)))
             subprocess.run(cmd)
 
         click.echo("--- Sync Finished ---")

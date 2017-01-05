@@ -37,7 +37,8 @@ def test_load_config():
 
 def test_rsync_cmd():
     conf = psync.load_config(root=PROJ_ROOT)
-    cmds = psync.rsync_cmds(conf)
+    cmds = psync.rsync_cmds(conf["local"],
+                            conf["ssh"]["server"], conf["remote"])
 
     # rsync -e ssh\
     #       --exclude=GTAGS --exclude=GPATH --exclude=GRTAGS\
@@ -45,30 +46,10 @@ def test_rsync_cmd():
     #             andrew_linux:~/courses/10-605/hw6/
     assert isinstance(cmds, list)
 
-    assert " ".join(cmds) == "rsync -e ssh -ruaz {} {}:{}".format(
-        conf["local"], conf["ssh"]["server"], conf["remote"])
-
-
-def test_mkdir_cmds():
-    conf = psync.load_config(root=PROJ_ROOT)
-    cmds = psync.mkdir_cmds(conf)
-
-    assert " ".join(cmds) == "ssh {} mkdir -p {}".format(
-        conf["ssh"]["server"], conf["remote"])
-
-
-def test_cmd_seq():
-    conf = psync.load_config(root=PROJ_ROOT)
-    cmds = psync.cmds_seq(conf)
-
-    assert isinstance(cmds, list)
-    assert len(cmds) == 2
-    assert isinstance(cmds[0], list)
-    assert isinstance(cmds[1], list)
-
-    assert cmds[0][0] == "ssh"
-    assert "mkdir" in cmds[0][-1]
-    assert cmds[1][0] == "rsync"
+    assert (" ".join(cmds) ==
+            "rsync -e ssh -ruaz --rsync-path mkdir -p {} && rsync {} {}:{}".
+            format(conf["remote"], conf["local"],
+                   conf["ssh"]["server"], conf["remote"]))
 
 
 def test_project_root(tmpdir):
