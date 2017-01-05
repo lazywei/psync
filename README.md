@@ -1,14 +1,28 @@
 Project Sync
 =======================
 
-A simple tool for synchronizing local project (files) to remote server.
+## Introduction
+
+#### What
+
+A simple tool based on `rsync` for uploading / synchronizing local project
+(files) to remote server.
+
+#### Who
+For people who want to work on a project locally (on your laptop) and sync the files
+to remote server. For example, developing locally and executing remotely.
+
+#### Why
+`rsync` is flexible and powerful, but flags and options are way too complex for
+memorizing.
 
 ## Installation
 
 ```
-$ pip install psync
+$ pip install project-sync
 ```
 
+This will install a command line tool `psync`, the usage of which is described below.
 
 ## Usage
 
@@ -68,7 +82,7 @@ The config (`.psync`) is a YAML file. You can edit it after initial generating.
 
 ## Contributions
 
-This project is currently WIP stage, so discussion, bug report and PR are really welcome :wink:.
+This project is currently in WIP stage; any discussion, bug report and PR are more than welcome.
 
 ## License
 

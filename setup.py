@@ -16,7 +16,7 @@ test_requirements = [
 ]
 
 setup(
-    name='psync',
+    name='project-sync',
     version='0.1.0',
     description="A simple tool for synchronizing local project (files)"
                 "to remote server.",
