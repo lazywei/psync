@@ -3,23 +3,23 @@
 
 from setuptools import setup
 
-with open('README.rst') as readme_file:
+with open('README.md') as readme_file:
     readme = readme_file.read()
 
 requirements = [
     'Click>=6.0',
+    'PyYAML>=3.12',
 ]
 
 test_requirements = [
-    'pyfakefs>=2.9',
-    'pytest-mock>1.5',
     # TODO: put package test requirements here
 ]
 
 setup(
     name='psync',
     version='0.1.0',
-    description="Project Sync",
+    description="A simple tool for synchronizing local project (files)"
+                "to remote server.",
     long_description=readme,
 
     author="Chih-Wei Chang",
@@ -43,7 +43,7 @@ setup(
 
     zip_safe=False,
 
-    keywords='project sync',
+    keywords='project sync rsync',
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[

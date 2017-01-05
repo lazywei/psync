@@ -22,7 +22,7 @@ $ pip install psync
 
     ```
     You are not in a project (no .psync found)!
-    Generate .psync to current directory (/Users/lazywei/Code/demo_project) [Y/n]? [Y]:
+    Generate .psync to current directory (/Users/lazywei/Code/demo_project) [Y/n]? [Y]: Y
     Config will be generated at /Users/lazywei/Code/demo_project:
     ---
     Remote path [~/remote/path]: ~/remote/path
@@ -51,6 +51,8 @@ $ pip install psync
     $ ssh aws_playground "ls -a ~/remote/path/demo_project"
     .      ..     README
     ```
+
+### Usage Demo
 
 [![Usage Demo](https://asciinema.org/a/98202.png)](https://asciinema.org/a/98202)
 
