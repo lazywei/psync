@@ -7,6 +7,28 @@ import yaml
 from psync import psync
 
 
+def ask_for_configs():
+    remote_path = click.prompt("Remote path", default="~/remote/path")
+    ssh_host = click.prompt("SSH host", default="ssh_host")
+    ssh_user = click.prompt("SSH username or enter '-' to skip",
+                            default="ssh_user")
+    ignores = click.prompt("Files or folders to ignore "
+                           "(separated by space)", default=" ")
+
+    if ssh_user == "-":
+        ssh_user = None
+
+    if ignores.strip():
+        ignores = ignores.split(" ")
+    else:
+        ignores = []
+
+    return psync.generate_config(ssh_user=ssh_user,
+                                 ssh_host=ssh_host,
+                                 remote_path=remote_path,
+                                 ignores=ignores)
+
+
 @click.command()
 def main(args=None):
     """Console script for psync"""
@@ -16,22 +38,15 @@ def main(args=None):
 
     if root is None:
         click.echo("You are not in a project (no .psync found)!")
-        gen_default_conf = click.prompt(
-            "Generate .psync to current directory ({})?".format(cwd),
+        gen_conf = click.prompt(
+            "Generate .psync to current directory ({}) [Y/n]?".format(cwd),
             default="Y")
 
-        if gen_default_conf.lower() == "y":
-            click.echo("Default config is generated at {}:".format(cwd))
+        if gen_conf.lower() == "y":
+            click.echo("Config will be generated at {}:".format(cwd))
             click.echo("---")
 
-            remote_path = click.prompt("Remote path", default="~/remote/path")
-            ssh_host = click.prompt("SSH host", default="ssh_host")
-            ssh_user = click.prompt("SSH username or enter '-' to skip",
-                                    default="ssh_user")
-
-            conf = psync.generate_config(ssh_user=ssh_user,
-                                         ssh_host=ssh_host,
-                                         remote_path=remote_path)
+            conf = ask_for_configs()
 
             conf_str = yaml.dump(conf, default_flow_style=False)
 

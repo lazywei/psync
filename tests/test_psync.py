@@ -18,7 +18,8 @@ def test_load_config(tmpdir):
     proj_root = tmpdir.mkdir("proj_root")
     proj_root.join(".psync").write(
         "remote:\n  ~/psync\nssh:\n  host: psync_remote_server"
-        "\n  username: username")
+        "\n  username: username"
+        "\nignores: []")
 
     conf = psync.load_config(root=str(proj_root))
     assert isinstance(conf, dict) is True
@@ -33,14 +34,14 @@ def test_load_config(tmpdir):
     assert conf["remote"] == "~/psync"
     assert conf["ssh"]["host"] == "psync_remote_server"
     assert conf["ssh"]["username"] == "username"
+    assert len(conf["ignores"]) == 0
 
 
 def test_rsync_cmd():
     conf = psync.generate_config(ssh_user="ssh_user",
                                  ssh_host="ssh_host",
                                  remote_path="remote_path")
-    cmds = psync.rsync_cmds("fake/local/path",
-                            conf["ssh"], conf["remote"])
+    cmds = psync.rsync_cmds("fake/local/path", conf)
 
     assert isinstance(cmds, list)
 
@@ -48,6 +49,16 @@ def test_rsync_cmd():
             "rsync -e ssh -ruaz --rsync-path mkdir -p {} && rsync {} {}".
             format(conf["remote"], "fake/local/path",
                    psync.ssh_path(conf["ssh"], conf["remote"])))
+
+    ig_conf = psync.generate_config(ssh_user="ssh_user",
+                                    ssh_host="ssh_host",
+                                    remote_path="remote_path",
+                                    ignores=["folderA", "fileB"])
+
+    ignores_cmds = psync.rsync_cmds("fake/local/path", ig_conf)
+    assert "--exclude" in ignores_cmds
+    assert "folderA" in ignores_cmds
+    assert "fileB" in ignores_cmds
 
 
 def test_project_root(tmpdir):
@@ -74,14 +85,22 @@ def test_generate_conf():
     assert conf["ssh"]["host"] == "ssh_host"
     assert conf["ssh"]["username"] == "ssh_user"
     assert conf["remote"] == "remote_path"
+    assert len(conf["ignores"]) == 0
 
-    nouser_conf = psync.generate_config(ssh_user="-",
+    nouser_conf = psync.generate_config(ssh_user=None,
                                         ssh_host="ssh_host",
                                         remote_path="remote_path")
 
     assert nouser_conf["ssh"]["host"] == "ssh_host"
     assert nouser_conf["ssh"]["username"] is None
     assert nouser_conf["remote"] == "remote_path"
+
+    ignores_conf = psync.generate_config(ssh_user=None,
+                                         ssh_host="ssh_host",
+                                         remote_path="remote_path",
+                                         ignores=["folderA", "fileB"])
+
+    assert ignores_conf["ignores"] == ["folderA", "fileB"]
 
 
 def test_ssh_path():
