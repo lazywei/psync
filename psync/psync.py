@@ -22,14 +22,14 @@ def load_config(root):
     with open(filepath) as f:
         conf = yaml.load(f.read())
 
-    conf["local"] = root
-
     return conf
 
 
-def mkdir_cmds(conf):
-    return ["ssh", conf["ssh"]["server"],
-            "mkdir -p {}".format(conf["remote"])]
+def default_config():
+    return {
+        "remote": "~/remote/path",
+        "ssh": {"server": "remote_server"},
+    }
 
 
 def rsync_cmds(local_path, ssh_server, remote_path):
@@ -40,7 +40,7 @@ def rsync_cmds(local_path, ssh_server, remote_path):
     return cmds
 
 
-def cmds_seq(conf):
+def cmds_seq(root, conf):
     return [
-        rsync_cmds(conf["local"], conf["ssh"]["server"], conf["remote"]),
+        rsync_cmds(root, conf["ssh"]["server"], conf["remote"]),
     ]

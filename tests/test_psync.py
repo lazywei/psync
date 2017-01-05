@@ -8,36 +8,35 @@ test_psync
 Tests for `psync` module.
 """
 
-import os
 # from click.testing import CliRunner
 
 from psync import psync
 # from psync import cli
 
-PROJ_ROOT = "/Users/lazywei/Code/psync/demo_project"
 
+def test_load_config(tmpdir):
+    proj_root = tmpdir.mkdir("proj_root")
+    proj_root.join(".psync").write(
+        "remote:\n  ~/psync\nssh:\n  server: psync_remote_server")
 
-def test_load_config():
-    conf = psync.load_config(root=PROJ_ROOT)
+    conf = psync.load_config(root=str(proj_root))
     assert isinstance(conf, dict) is True
 
-    conf_keys = conf.keys()
-    assert "local" in conf_keys
-    assert "remote" in conf_keys
-    assert "ssh" in conf_keys
+    assert "local" not in conf
+    assert "remote" in conf
+    assert "ssh" in conf
 
-    assert isinstance(conf["local"], str)
     assert isinstance(conf["remote"], str)
     assert isinstance(conf["ssh"], dict)
-    assert "server" in conf["ssh"].keys()
+    assert "server" in conf["ssh"]
 
-    assert conf["local"] == PROJ_ROOT
     assert conf["remote"] == "~/psync"
+    assert conf["ssh"]["server"] == "psync_remote_server"
 
 
 def test_rsync_cmd():
-    conf = psync.load_config(root=PROJ_ROOT)
-    cmds = psync.rsync_cmds(conf["local"],
+    conf = psync.default_config()
+    cmds = psync.rsync_cmds("fake/local/path",
                             conf["ssh"]["server"], conf["remote"])
 
     # rsync -e ssh\
@@ -48,7 +47,7 @@ def test_rsync_cmd():
 
     assert (" ".join(cmds) ==
             "rsync -e ssh -ruaz --rsync-path mkdir -p {} && rsync {} {}:{}".
-            format(conf["remote"], conf["local"],
+            format(conf["remote"], "fake/local/path",
                    conf["ssh"]["server"], conf["remote"]))
 
 
@@ -61,12 +60,19 @@ def test_project_root(tmpdir):
 
     none_root = tmpdir.mkdir("no_psync")
 
-    assert psync.project_root(expected_root) == expected_root
-    assert psync.project_root(nested_sub) == expected_root
-    assert psync.project_root(sub) == expected_root
+    assert psync.project_root(str(expected_root)) == expected_root
+    assert psync.project_root(str(nested_sub)) == expected_root
+    assert psync.project_root(str(sub)) == expected_root
 
-    assert psync.project_root(none_root) is None
+    assert psync.project_root(str(none_root)) is None
 
+
+def test_default_conf():
+    default_conf = psync.default_config()
+
+    assert "ssh" in default_conf
+    assert "server" in default_conf["ssh"]
+    assert "remote" in default_conf
 
 # def test_command_line_interface():
 #     runner = CliRunner()
