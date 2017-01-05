@@ -24,14 +24,14 @@ def main(args=None):
             click.echo("Default config is generated at {}:".format(cwd))
             click.echo("---")
 
-            conf = psync.default_config()
+            remote_path = click.prompt("Remote path", default="~/remote/path")
+            ssh_host = click.prompt("SSH host", default="ssh_host")
+            ssh_user = click.prompt("SSH username or enter '-' to skip",
+                                    default="ssh_user")
 
-            remote_path = click.prompt("Remote path", default=conf["remote"])
-            ssh_server = click.prompt("SSH server",
-                                      default=conf["ssh"]["server"])
-
-            conf["remote"] = remote_path
-            conf["ssh"]["server"] = ssh_server
+            conf = psync.generate_config(ssh_user=ssh_user,
+                                         ssh_host=ssh_host,
+                                         remote_path=remote_path)
 
             conf_str = yaml.dump(conf, default_flow_style=False)
 

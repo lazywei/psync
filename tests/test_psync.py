@@ -17,7 +17,8 @@ from psync import psync
 def test_load_config(tmpdir):
     proj_root = tmpdir.mkdir("proj_root")
     proj_root.join(".psync").write(
-        "remote:\n  ~/psync\nssh:\n  server: psync_remote_server")
+        "remote:\n  ~/psync\nssh:\n  host: psync_remote_server"
+        "\n  username: username")
 
     conf = psync.load_config(root=str(proj_root))
     assert isinstance(conf, dict) is True
@@ -28,27 +29,25 @@ def test_load_config(tmpdir):
 
     assert isinstance(conf["remote"], str)
     assert isinstance(conf["ssh"], dict)
-    assert "server" in conf["ssh"]
 
     assert conf["remote"] == "~/psync"
-    assert conf["ssh"]["server"] == "psync_remote_server"
+    assert conf["ssh"]["host"] == "psync_remote_server"
+    assert conf["ssh"]["username"] == "username"
 
 
 def test_rsync_cmd():
-    conf = psync.default_config()
+    conf = psync.generate_config(ssh_user="ssh_user",
+                                 ssh_host="ssh_host",
+                                 remote_path="remote_path")
     cmds = psync.rsync_cmds("fake/local/path",
-                            conf["ssh"]["server"], conf["remote"])
+                            conf["ssh"], conf["remote"])
 
-    # rsync -e ssh\
-    #       --exclude=GTAGS --exclude=GPATH --exclude=GRTAGS\
-    #       -ruaz /Users/lazywei/CMU/Courses/10-605/hw6/6-handout/*\
-    #             andrew_linux:~/courses/10-605/hw6/
     assert isinstance(cmds, list)
 
     assert (" ".join(cmds) ==
-            "rsync -e ssh -ruaz --rsync-path mkdir -p {} && rsync {} {}:{}".
+            "rsync -e ssh -ruaz --rsync-path mkdir -p {} && rsync {} {}".
             format(conf["remote"], "fake/local/path",
-                   conf["ssh"]["server"], conf["remote"]))
+                   psync.ssh_path(conf["ssh"], conf["remote"])))
 
 
 def test_project_root(tmpdir):
@@ -67,12 +66,40 @@ def test_project_root(tmpdir):
     assert psync.project_root(str(none_root)) is None
 
 
-def test_default_conf():
-    default_conf = psync.default_config()
+def test_generate_conf():
+    conf = psync.generate_config(ssh_user="ssh_user",
+                                 ssh_host="ssh_host",
+                                 remote_path="remote_path")
 
-    assert "ssh" in default_conf
-    assert "server" in default_conf["ssh"]
-    assert "remote" in default_conf
+    assert conf["ssh"]["host"] == "ssh_host"
+    assert conf["ssh"]["username"] == "ssh_user"
+    assert conf["remote"] == "remote_path"
+
+    nouser_conf = psync.generate_config(ssh_user="-",
+                                        ssh_host="ssh_host",
+                                        remote_path="remote_path")
+
+    assert nouser_conf["ssh"]["host"] == "ssh_host"
+    assert nouser_conf["ssh"]["username"] is None
+    assert nouser_conf["remote"] == "remote_path"
+
+
+def test_ssh_path():
+    conf = psync.generate_config(ssh_user="ssh_user",
+                                 ssh_host="ssh_host",
+                                 remote_path="remote_path")
+    ssh_path = psync.ssh_path(conf["ssh"], conf["remote"])
+
+    assert ssh_path == "{}@{}:{}".format(
+        conf["ssh"]["username"], conf["ssh"]["host"],
+        conf["remote"])
+
+    conf["ssh"]["username"] = None
+
+    nouser_ssh_path = psync.ssh_path(conf["ssh"], conf["remote"])
+    assert nouser_ssh_path == "{}:{}".format(
+        conf["ssh"]["host"], conf["remote"])
+
 
 # def test_command_line_interface():
 #     runner = CliRunner()

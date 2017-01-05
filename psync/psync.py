@@ -25,22 +25,38 @@ def load_config(root):
     return conf
 
 
-def default_config():
+def generate_config(ssh_user, ssh_host, remote_path):
+    if ssh_user == "-":
+        ssh_user = None
+
     return {
-        "remote": "~/remote/path",
-        "ssh": {"server": "remote_server"},
+        "remote": remote_path,
+        "ssh": {
+            "username": ssh_user,
+            "host": ssh_host,
+        },
     }
 
 
-def rsync_cmds(local_path, ssh_server, remote_path):
+def ssh_path(ssh_conf, remote_path):
+    username = ssh_conf["username"]
+    ssh_host = ssh_conf["host"]
+
+    if username is None:
+        return "{}:{}".format(ssh_host, remote_path)
+    else:
+        return "{}@{}:{}".format(username, ssh_host, remote_path)
+
+
+def rsync_cmds(local_path, ssh_conf, remote_path):
     cmds = ["rsync", "-e", "ssh", "-ruaz",
             "--rsync-path", "mkdir -p {} && rsync".format(remote_path),
-            local_path, ssh_server + ":" + remote_path]
+            local_path, ssh_path(ssh_conf, remote_path)]
 
     return cmds
 
 
 def cmds_seq(root, conf):
     return [
-        rsync_cmds(root, conf["ssh"]["server"], conf["remote"]),
+        rsync_cmds(root, conf["ssh"], conf["remote"]),
     ]
