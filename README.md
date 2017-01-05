@@ -68,7 +68,7 @@ This will install a command line tool `psync`, the usage of which is described b
 
 ### Usage Demo
 
-[![Usage Demo](https://asciinema.org/a/98202.png)](https://asciinema.org/a/98202)
+![Usage Demo](demo-usage.gif)
 
 ### Config Options
 
