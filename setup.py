@@ -11,6 +11,8 @@ requirements = [
 ]
 
 test_requirements = [
+    'pyfakefs>=2.9',
+    'pytest-mock>1.5',
     # TODO: put package test requirements here
 ]
 

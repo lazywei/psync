@@ -5,6 +5,17 @@ import os
 CONFIG_FILE = ".psync"
 
 
+def project_root(start_from):
+    cur_path = start_from
+    if os.path.isfile(os.path.join(cur_path, CONFIG_FILE)):
+        return cur_path
+    elif cur_path == "/":
+        return None
+    else:
+        par_path = os.path.abspath(os.path.join(cur_path, "../"))
+        return project_root(par_path)
+
+
 def load_config(root):
     filepath = os.path.join(root, CONFIG_FILE)
 

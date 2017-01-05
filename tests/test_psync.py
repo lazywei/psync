@@ -8,6 +8,7 @@ test_psync
 Tests for `psync` module.
 """
 
+import os
 # from click.testing import CliRunner
 
 from psync import psync
@@ -31,7 +32,7 @@ def test_load_config():
     assert "server" in conf["ssh"].keys()
 
     assert conf["local"] == PROJ_ROOT
-    assert conf["remote"] == "~/psync/demo_project"
+    assert conf["remote"] == "~/psync"
 
 
 def test_rsync_cmd():
@@ -68,6 +69,22 @@ def test_cmd_seq():
     assert cmds[0][0] == "ssh"
     assert "mkdir" in cmds[0][-1]
     assert cmds[1][0] == "rsync"
+
+
+def test_project_root(tmpdir):
+    expected_root = tmpdir.mkdir("proj_root")
+    expected_root.join(".psync").write("")
+
+    nested_sub = expected_root.mkdir("sub1").mkdir("subsub")
+    sub = expected_root.mkdir("sub2")
+
+    none_root = tmpdir.mkdir("no_psync")
+
+    assert psync.project_root(expected_root) == expected_root
+    assert psync.project_root(nested_sub) == expected_root
+    assert psync.project_root(sub) == expected_root
+
+    assert psync.project_root(none_root) is None
 
 
 # def test_command_line_interface():
