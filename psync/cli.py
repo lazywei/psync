@@ -77,13 +77,16 @@ def perform_sync():
 
             click.echo("Project root is now: {}".format(
                 psync.project_root(start_from=os.getcwd())))
+            click.echo("Run `psync` to perform sync or "
+                       "`psync watch` to watch any changes and perform "
+                       "sync automatically.")
         else:
             click.echo("Aborted!")
     else:
         conf = psync.load_config(root=root)
 
         for cmd in psync.cmds_seq(root, conf):
-            click.echo("Running:\n  {}".format(" ".join(cmd)))
+            click.echo("Running: {}".format(cmd[0]))
             subprocess.run(cmd)
 
         click.echo("--- Sync Finished ---")
@@ -99,6 +102,7 @@ def watch():
     if not is_proj:
         click.echo("Run psync to generate .psync config file.")
     else:
+        click.echo("Start watching {} ...".format(root))
         event_handler = watcher.AnyEventHandler(state)
         observer = Observer()
         observer.schedule(event_handler, root, recursive=True)

@@ -18,7 +18,7 @@ test_requirements = [
 
 setup(
     name='project-sync',
-    version='0.1.1',
+    version='0.1.2',
     description="A simple tool for synchronizing local project (files) "
                 "to remote server.",
     long_description=readme,
@@ -44,7 +44,7 @@ setup(
 
     zip_safe=False,
 
-    keywords='project sync rsync',
+    keywords='project sync rsync auto watch',
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -52,7 +52,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
