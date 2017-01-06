@@ -66,6 +66,8 @@ This will install a command line tool `psync`, the usage of which is described b
     .      ..     README
     ```
 
+3. Run `psync watch` to watch any modification under the project root and perform sync automatically.
+
 ### Usage Demo
 
 ![Usage Demo](demo-usage.gif)

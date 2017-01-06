@@ -5,6 +5,18 @@ import subprocess
 import os
 import yaml
 from psync import psync
+from psync import watcher
+from watchdog.observers import Observer
+
+
+def get_project_root():
+    cwd = os.getcwd()
+    root = psync.project_root(start_from=cwd)
+
+    if root is None:
+        return False, None
+    else:
+        return True, root
 
 
 def ask_for_configs():
@@ -29,15 +41,22 @@ def ask_for_configs():
                                  ignores=ignores)
 
 
-@click.command()
-def main(args=None):
+@click.group(invoke_without_command=True)
+@click.pass_context
+def cli(ctx):
     """Console script for psync"""
+    if ctx.invoked_subcommand is None:
+        perform_sync()
+    else:
+        pass
 
-    cwd = os.getcwd()
-    root = psync.project_root(start_from=cwd)
 
-    if root is None:
+def perform_sync():
+    is_proj, root = get_project_root()
+
+    if not is_proj:
         click.echo("You are not in a project (no .psync found)!")
+        cwd = os.getcwd()
         gen_conf = click.prompt(
             "Generate .psync to current directory ({}) [Y/n]?".format(cwd),
             default="Y")
@@ -70,5 +89,31 @@ def main(args=None):
         click.echo("--- Sync Finished ---")
 
 
+@cli.command()
+def watch():
+    import time
+    is_proj, root = get_project_root()
+
+    state = {"dirty": False}
+
+    if not is_proj:
+        click.echo("Run psync to generate .psync config file.")
+    else:
+        event_handler = watcher.AnyEventHandler(state)
+        observer = Observer()
+        observer.schedule(event_handler, root, recursive=True)
+        observer.start()
+        try:
+            while True:
+                if state["dirty"]:
+                    click.echo("Detect modification. Perform sync.")
+                    perform_sync()
+                    state["dirty"] = False
+                time.sleep(1)
+        except KeyboardInterrupt:
+            observer.stop()
+        observer.join()
+
+
 if __name__ == "__main__":
-    main()
+    cli()

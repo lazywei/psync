@@ -9,6 +9,7 @@ with open('README.md') as readme_file:
 requirements = [
     'Click>=6.0',
     'PyYAML>=3.12',
+    'watchdog>=0.8.3',
 ]
 
 test_requirements = [
@@ -17,8 +18,8 @@ test_requirements = [
 
 setup(
     name='project-sync',
-    version='0.1.0',
-    description="A simple tool for synchronizing local project (files)"
+    version='0.1.1',
+    description="A simple tool for synchronizing local project (files) "
                 "to remote server.",
     long_description=readme,
 
@@ -34,7 +35,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'psync=psync.cli:main'
+            'psync=psync.cli:cli'
         ]
     },
 
