@@ -18,7 +18,7 @@ test_requirements = [
 
 setup(
     name='project-sync',
-    version='0.1.2',
+    version='0.2.0',
     description="A simple tool for synchronizing local project (files) "
                 "to remote server.",
     long_description=readme,
@@ -62,9 +62,9 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        # 'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2',
         # 'Programming Language :: Python :: 2.6',
-        # 'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',

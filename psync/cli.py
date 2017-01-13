@@ -1,12 +1,21 @@
 # -*- coding: utf-8 -*-
 
 import click
-import subprocess
 import os
+import subprocess
+import sys
+import time
 import yaml
-from psync import psync
-from psync import watcher
+
 from watchdog.observers import Observer
+from . import psync
+from . import watcher
+
+
+if sys.hexversion <= 0x03050000:
+    run_shell = subprocess.call
+else:
+    run_shell = subprocess.run
 
 
 def get_project_root():
@@ -87,14 +96,13 @@ def perform_sync():
 
         for cmd in psync.cmds_seq(root, conf):
             click.echo("Running: {}".format(cmd[0]))
-            subprocess.run(cmd)
+            run_shell(cmd)
 
         click.echo("--- Sync Finished ---")
 
 
 @cli.command()
 def watch():
-    import time
     is_proj, root = get_project_root()
 
     state = {"dirty": False}
